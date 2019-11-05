@@ -17,4 +17,11 @@ knitr::opts_chunk$set(echo = TRUE)
 - Discussion
 
 
-<img src="abalone-6764.jpg" title="Abalone">
+<!-- <img src="abalone-6764.jpg" title="Abalone"> -->
+
+```{r graphics, fig.align='center', echo=FALSE}
+
+knitr::include_graphics("abalone-6764.jpg")
+
+```
+
