@@ -15,3 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 - [Analysis](analysis.html)
 - Mapping
 - Discussion
+
+
+<img src="abalone-6764.jpg" title="Abalone">
