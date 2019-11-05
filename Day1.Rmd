@@ -1,0 +1,76 @@
+---
+title: "Day 1 Examples"
+author: "Nicole LaRoche"
+date: "11/4/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Header 1
+
+## Header 2
+ 
+Some **bold**
+
+Include a [link](https://nceas.ucsb.edu)
+
+ * apple
+ * banana
+ * orange
+
+*italic*
+
+1. this is number 1
+    * This is an indent
+2. this is number 2 
+
+Here is some R code:
+
+```{r}
+x <- 3*4
+x
+```
+
+
+This should be inline `echo=FALSE` in the middle of the sentence
+
+Another example of the same thing. This will print the value of x=`r round(x)`
+
+### LaTeX example
+
+$\sum{x^2}$
+
+### Now we are hiding the results of the r code and only giving a result
+
+```{r, results='hide', echo = FALSE}
+
+y=10
+z<-x*y
+```
+
+The result is `r z`. 
+
+```{r}
+weight_kg <- c(55, 25, 12)
+mean(weight_kg)
+```
+
+# read this data into R environment
+
+Use `read.csv` to read the data
+
+```{r}
+bg_chem <- read.csv("BGchem2008data.csv", stringsAsFactors = FALSE)
+class(bg_chem)
+head(bg_chem)
+mean_depth <- mean(bg_chem$CTD_Depth)
+```
+
+```{r}
+plot(bg_chem$CTD_Depth, bg_chem$CTD_Temperature)
+```
+
+
