@@ -1,0 +1,70 @@
+---
+title: "Data_Tidy"
+author: "Nicole LaRoche"
+date: "11/6/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning =F, message = F}
+library(dplyr)
+library(tidyr)
+```
+# Outline
+
+## Read and Clean Data
+```{r}
+catch_original <- read.csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1",
+                           stringsAsFactors = FALSE)
+head(catch_original)
+```
+
+We want to drop the 'all' and 'notes' columns
+```{r}
+catch_data <- catch_original %>% 
+  #select(Region, Year, Chinook, Sockeye, Coho, Pink, Chum)
+  select(-All, -notesRegCode)
+```
+
+```{r}
+summary(catch_data)
+```
+
+#### Fix Chinook column
+Chinook has a problem. It is listed as a character. 
+use 'mutate' to fix
+```{r}
+catch_clean <- catch_data %>% 
+  mutate(Chinook = ifelse(Chinook == "I", 1, Chinook)) %>% 
+  mutate(Chinook = as.numeric(Chinook))
+```
+
+data exploration - find the row that got turned into NA in 'Chinook'
+```{r}
+i<-which(is.na(catch_clean$Chinook))
+i
+```
+
+```{r}
+catch_original[i, ]
+```
+
+## Reshape Data
+
+Using 'pivot_longer' to condense the species into one column.
+```{r}
+catch_long<- catch_clean %>% 
+  pivot_longer(cols = -c(Region, Year), names_to = "Species", values_to = "Count")
+head(catch_long)
+```
+
+
+
+
+## Summarize data
+
+## Join to region table
+
