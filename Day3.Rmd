@@ -22,7 +22,7 @@ catch_original <- read.csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/d
 head(catch_original)
 ```
 
-We want to drop the 'all' and 'notes' columns
+We want to drop the `all` and `notes` columns
 ```{r}
 catch_data <- catch_original %>% 
   #select(Region, Year, Chinook, Sockeye, Coho, Pink, Chum)
@@ -35,14 +35,14 @@ summary(catch_data)
 
 #### Fix Chinook column
 Chinook has a problem. It is listed as a character. 
-use 'mutate' to fix
+use `mutate` to fix
 ```{r}
 catch_clean <- catch_data %>% 
   mutate(Chinook = ifelse(Chinook == "I", 1, Chinook)) %>% 
   mutate(Chinook = as.numeric(Chinook))
 ```
 
-data exploration - find the row that got turned into NA in 'Chinook'
+data exploration - find the row that got turned into NA in `Chinook`
 ```{r}
 i<-which(is.na(catch_clean$Chinook))
 i
@@ -54,7 +54,7 @@ catch_original[i, ]
 
 ## Reshape Data
 
-Using 'pivot_longer' to condense the species into one column.
+Using `pivot_longer` to condense the species into one column.
 ```{r}
 catch_long<- catch_clean %>% 
   pivot_longer(cols = -c(Region, Year), names_to = "Species", values_to = "Count")
@@ -62,9 +62,96 @@ head(catch_long)
 ```
 
 
+Using `pivot_wider` to make the species separate again
+```{r}
+catch_wide<- catch_long %>% 
+  pivot_wider(names_from = Year, values_from = Count)
+head(catch_wide)
+```
 
+`rename` count column to `catch_thousands`
+
+```{r}
+catch_long<- catch_long %>% 
+  rename(catch_thousands = Count)
+```
+
+```{r}
+catch_long<- catch_long %>% 
+  mutate(catch = catch_thousands*1000) %>% 
+  select(-catch_thousands)
+head(catch_long)
+```
 
 ## Summarize data
 
+```{r}
+mean_region <- catch_long %>% 
+  group_by(Region, Species) %>% 
+  summarise(catch_mean= mean(catch), num_obs = n())
+
+mean_region
+```
+
+Now calculate the most commonly caught species
+First, calculate the total catch by species
+```{r}
+max_species <- catch_long %>% 
+  group_by(Species) %>% 
+  summarise(total = mean(catch)*n()) %>% 
+  arrange(desc(total))
+max_species
+```
+
+filter - this isn't done. Come back to it.
+```{r}
+species_pre_1900 <- catch_long %>% 
+  filter(Year<1900) %>% 
+  group_by(Species) %>% 
+  summarise(total = mean(catch)*n()) %>% 
+  arrange(desc(total))
+species_pre_1900
+```
+
+
+
 ## Join to region table
+
+
+Ading second dataset
+```{r}
+region_defs <- read.csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.303.1",
+                        stringsAsFactors = FALSE) %>% 
+  select(code, mgmtArea)
+head(region_defs)
+```
+
+Left join - making the combined file with all values from the catch data. if there is something in the regions data, that doesn't have a catch zone associated then it will not appear in this list.
+```{r}
+catch_joined <- left_join(catch_long, region_defs, by = c("Region"="code"))
+head(catch_joined)
+```
+
+# Separate and Unite
+
+```{r}
+site_codes <- data.frame(site = c("HAW-100", "HAW-101", "OAH-102", "OAH-103", "MAI-100"),
+                         stringsAsFactors = F)
+```
+
+separate island and site number using `separate`
+```{r}
+site_codes_split<-site_codes %>% 
+  separate(site, into = c("island", "site_num"), sep = "-", remove = F)
+
+site_codes_split
+```
+
+now undo what we just did
+```{r}
+site_codes_combine <- site_codes_split %>% 
+  unite(site_code, island, site_num, sep = "_")
+
+site_codes_combine
+```
 
