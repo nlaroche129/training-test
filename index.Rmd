@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 - Data Cleaning
 - [Analysis](analysis.html)
 - [Visualizations](visualizations.html)
-- Discussion
+- Shiny
 
 
 <!-- <img src="abalone-6764.jpg" title="Abalone"/> -->
@@ -25,13 +25,4 @@ knitr::include_graphics("abalone-6764.jpg")
 
 ```
 
-# Dave's section
-
-This is my section now!!!
-
-Second changes!!!!
-
-New change.
-
-Final change.... maybe?
 
