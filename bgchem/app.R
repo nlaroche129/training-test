@@ -28,7 +28,8 @@ ui <- fluidPage(
                         "Depth:",
                         min = 1,
                         max = 500,
-                        value = c(1, 100))
+                        value = c(1, 100)),
+            selectInput("x_var", "X-Axis:"))
         ),
 
         # Show a plot of the generated distribution
@@ -43,7 +44,7 @@ ui <- fluidPage(
 server <- function(input, output) {
 
     output$distPlot <- renderPlot({
-        ggplot(bg_chem, mapping = aes(x = CTD_Depth, y = CTD_Salinity)) +
+        ggplot(bg_chem, mapping = aes_string(x = "CTD_Depth", y = "CTD_Salinity")) +
             geom_point(size = 4, color = "lightseagreen") +
             xlim(input$depth[1], input$depth[2]) +
             theme_light()

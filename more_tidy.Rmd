@@ -1,0 +1,75 @@
+---
+title: "Extra Tidy"
+author: "Nicole LaRoche"
+date: "11/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries}
+library(leaflet)
+  library(dplyr)
+  library(tidyr)
+  library(ggplot2)
+  library(DT)
+  library(scales) 
+```
+
+```{r}
+data_url <-"https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3Af119a05b-bbe7-4aea-93c6-85434dcb1c5e"
+data<- read.csv(data_url, stringsAsFactors = F)
+
+goals_url<-"https://knb.ecoinformatics.org/knb/d1/mn/v2/object/knb.92014.1"
+goals<- read.csv(goals_url, stringsAsFactors = F)
+
+
+```
+
+## looking at the `GOALS` and filtering
+There lower was listed as character, so change that
+```{r}
+summary(goals)
+clean.goals<-goals %>% 
+  mutate(Lower = as.numeric(Lower)) %>% 
+  mutate(Initial.Year=as.numeric(Initial.Year))
+
+bb.goals <- clean.goals %>% 
+  filter(Region == "Bristol Bay" & Species == "Sockeye")
+```
+
+### Adding a year column and filtering `DATA` 
+```{r}
+bb.data<-data %>% 
+  filter(SASAP.Region == "Bristol Bay" & Species == "Sockeye") %>% 
+  separate(sampleDate, into = c("Year", "Month", "Day"), sep = "-", remove = F) %>% 
+  mutate(Year = as.numeric(Year)) %>% 
+  group_by(Location, Year) %>% 
+  summarise(Total=sum(DailyCount))
+bb.data
+```
+
+
+## Joining data and goals (inner join)
+```{r}
+joined <- inner_join(bb.data, bb.goals, by = c("Location"="System"))
+joined
+```
+
+this is how Courtney's group did it
+```{r}
+goal.met<- joined %>% 
+  filter(Initial.Year <= Year) %>% 
+  filter(Lower <= Total & Upper >= Total)
+```
+
+```{r}
+mutate(inside = (Total> Lower & Total < Upper))
+```
+
+```{r}
+joined$Escape<- ifelse(joined$Total<joined$Lower, "Under", ifelse(joined$Total<joined$Upper, "In", "Over"))
+```
+
